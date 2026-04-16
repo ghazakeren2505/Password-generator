@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Password Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 15px;
+      width: 320px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      margin-bottom: 10px;
+      background: #0f172a;
+      color: white;
+      text-align: center;
+    }
+
+    .option {
+      display: flex;
+      justify-content: space-between;
+      margin: 6px 0;
+      font-size: 14px;
+    }
+
+    .buttons {
+      display: flex;
+      margin-top: 10px;
+    }
+
+    button {
+      flex: 1;
+      margin: 5px;
+      padding: 10px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.2s;
+    }
+
+    .generate { background: #22c55e; color: white; }
+    .copy { background: #3b82f6; color: white; }
+
+    button:hover {
+      transform: scale(1.05);
+      opacity: 0.9;
+    }
+
+    #result {
+      margin-top: 15px;
+      background: #0f172a;
+      padding: 10px;
+      border-radius: 8px;
+      text-align: center;
+      letter-spacing: 2px;
+    }
+
+    #strength {
+      margin-top: 8px;
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .weak { color: #ef4444; }
+    .medium { color: #facc15; }
+    .strong { color: #22c55e; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Password Generator</h2>
+
+  <input type="number" id="length" min="1" value="12">
+
+  <div class="option"><span>Huruf Besar</span><input type="checkbox" id="upper" checked></div>
+  <div class="option"><span>Huruf Kecil</span><input type="checkbox" id="lower" checked></div>
+  <div class="option"><span>Angka</span><input type="checkbox" id="number" checked></div>
+  <div class="option"><span>Simbol (@#$_&*)</span><input type="checkbox" id="symbol" checked></div>
+
+  <div class="buttons">
+    <button class="generate" onclick="generate()">Generate</button>
+    <button class="copy" id="copyBtn" onclick="copyPassword()">Copy</button>
+  </div>
+
+  <div id="result">-</div>
+  <div id="strength"></div>
+</div>
+
+<script>
+function getChars() {
+  let chars = "";
+  if (upper.checked) chars += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  if (lower.checked) chars += "abcdefghijklmnopqrstuvwxyz";
+  if (number.checked) chars += "0123456789";
+  if (symbol.checked) chars += "@#$_&*";
+  return chars;
+}
+
+function generate() {
+  let length = document.getElementById("length").value;
+  let chars = getChars();
+
+  if (!chars) {
+    result.innerText = "Pilih minimal 1 opsi";
+    return;
+  }
+
+  let interval = setInterval(() => {
+    let fake = "";
+    for (let i = 0; i < length; i++) {
+      fake += chars[Math.floor(Math.random() * chars.length)];
+    }
+    result.innerText = fake;
+  }, 50);
+
+  setTimeout(() => {
+    clearInterval(interval);
+
+    let password = "";
+    for (let i = 0; i < length; i++) {
+      password += chars[Math.floor(Math.random() * chars.length)];
+    }
+
+    result.innerText = password;
+    checkStrength(password);
+  }, 500);
+}
+
+function copyPassword() {
+  let text = result.innerText;
+  let btn = document.getElementById("copyBtn");
+
+  if (text === "-" || text.includes("Pilih")) return;
+
+  navigator.clipboard.writeText(text);
+  btn.innerText = "Copied!";
+
+  setTimeout(() => btn.innerText = "Copy", 1500);
+}
+
+function checkStrength(password) {
+  let strength = 0;
+
+  if (password.length >= 8) strength++;
+  if (/[A-Z]/.test(password)) strength++;
+  if (/[0-9]/.test(password)) strength++;
+  if (/[@#$_&*]/.test(password)) strength++;
+
+  if (strength <= 2) {
+    strengthText.innerText = "Weak";
+    strengthText.className = "weak";
+  } else if (strength === 3) {
+    strengthText.innerText = "Medium";
+    strengthText.className = "medium";
+  } else {
+    strengthText.innerText = "Strong";
+    strengthText.className = "strong";
+  }
+}
+
+// auto generate
+window.onload = generate;
+</script>
+
+</body>
+</html>
